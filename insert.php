@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
+    header('Location: login.php');
+    exit();
+}
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,6 +16,37 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Insert Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: url('https://i.pinimg.com/736x/0f/55/9d/0f559dc377c4aa7af5502696e9f98dbb.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200vh;
+            margin: 0;
+        }
+        .container {
+            background-color: pink;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            margin-bottom: 10px;
+        }
+        .btn-primary, .btn-success {
+            margin-top: 100px;
+        }
+        .alert {
+            margin-top: 100px;
+        }
+    </style>
 </head>
 <body>
     <?php
@@ -21,29 +61,34 @@
     ?>
 <div class="container">
     <h1 class="text-center mt-5">Insert Data Produk</h1>
-    <form action="" method="post">
+    <form action="" method="post" class="needs-validation" novalidate>
         <div class="form-group">
-            <label for="namaProdukInput">Nama_Produk</label>
+            <label for="namaProdukInput">Nama Produk</label>
             <input type="text" class="form-control" id="namaProdukInput" name="Nama_Produk" placeholder="Enter Product Name" required>
+            <div class="invalid-feedback">Nama produk diperlukan.</div>
         </div>
         <div class="form-group">
             <label for="merekInput">Merek</label>
             <input type="text" class="form-control" id="merekInput" name="Merek" placeholder="Enter Brand" required>
+            <div class="invalid-feedback">Merek diperlukan.</div>
         </div>
         <div class="form-group">
             <label for="kategoriInput">Kategori</label>
             <input type="text" class="form-control" id="kategoriInput" name="Kategori" placeholder="Enter Category" required>
+            <div class="invalid-feedback">Kategori diperlukan.</div>
         </div>
         <div class="form-group">
             <label for="hargaInput">Harga</label>
             <input type="number" class="form-control" id="hargaInput" name="Harga" placeholder="Enter Price" required>
+            <div class="invalid-feedback">Harga diperlukan.</div>
         </div>
         <div class="form-group">
             <label for="stokInput">Stok</label>
             <input type="number" class="form-control" id="stokInput" name="Stok" placeholder="Enter Stock" required>
+            <div class="invalid-feedback">Stok diperlukan.</div>
         </div>
         <div class="form-group">
-            <label for="tanggalKadaluarsaInput">Tanggal_Kadaluarsa</label>
+            <label for="tanggalKadaluarsaInput">Tanggal Kadaluarsa</label>
             <input type="date" class="form-control" id="tanggalKadaluarsaInput" name="Tanggal_Kadaluarsa">
         </div>
         <div class="form-group">
@@ -80,16 +125,36 @@
             $sertifikasi = $_POST['Sertifikasi'];
             $created_at = date('Y-m-d H:i:s');
 
-        
             $query = "INSERT INTO Produk (Nama_Produk, Merek, Kategori, Harga, Stok, Tanggal_Kadaluarsa, Bahan, Ukuran, Rating, Sertifikasi, created_at)
-            VALUES ('$nama_produk', '$merek', '$kategori', '$harga', '$stok', '$tanggal_kadaluarsa', '$bahan', '$ukuran', '$rating', '$sertifikasi', '$created_at')";
+                      VALUES ('$nama_produk', '$merek', '$kategori', '$harga', '$stok', '$tanggal_kadaluarsa', '$bahan', '$ukuran', '$rating', '$sertifikasi', '$created_at')";
 
-if ($conn->query($query) === TRUE) {
-    echo "<div class='alert alert-success mt-3' role='alert'>Data inserted successfully</div>";
-} else {
-    echo "<div class='alert alert-danger mt-3' role='alert'>Error: " . $query . "<br>" . $conn->error . "</div>";
-}
-}
-$conn->close();
-?>
+            if ($conn->query($query) === TRUE) {
+                echo "<div class='alert alert-success mt-3' role='alert'>Data inserted successfully</div>";
+            } else {
+                echo "<div class='alert alert-danger mt-3' role='alert'>Error: " . $query . "<br>" . $conn->error . "</div>";
+            }
+        }
+        $conn->close();
+    ?>
 </div>
+
+<script>
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+
+</body>
+</html>

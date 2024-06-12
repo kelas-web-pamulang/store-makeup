@@ -7,6 +7,47 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>List Product</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Georgia', serif;
+            color: #444;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1 {
+            color: #d63384;
+            font-family: 'Cursive', sans-serif;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-control, .form-select {
+            border-radius: 20px;
+        }
+        .btn-success, .btn-danger, .btn-info {
+            border-radius: 20px;
+        }
+        .table {
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #d63384;
+            color: #ffffff;
+            text-align: center;
+        }
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .alert {
+            border-radius: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,7 +63,10 @@
                     </select>
                     <button type="submit" class="btn btn-success mx-2">Cari</button>
                 </form>
-                <a href="insert.php" class="ml-auto"><button class="btn btn-success">Tambah Data</button></a>
+                <div>
+                    <a href="insert.php" class="btn btn-success">Tambah Data</a>
+                    <a href="?logout" class="btn btn-danger">Logout</a>
+                </div>
             </div>
             <table class="table">
                 <thead>
@@ -43,10 +87,27 @@
                 </tr>
                 </thead>
                 <tbody>
+
                 <?php
                 ini_set('display_errors', '1');
                 ini_set('display_startup_errors', '1');
                 error_reporting(E_ALL);
+
+                session_start();
+
+if (!isset($_SESSION['login'])) {
+    header('Location: login.php');
+    exit();
+}
+
+// Handle logout
+if (isset($_GET['logout'])) {
+    session_destroy();
+    setcookie('clientId', '', time() - 3600, '/');
+    setcookie('clientSecret', '', time() - 3600, '/');
+    header('Location: login.php');
+    exit();
+}
 
                 require_once 'config_db.php';
 

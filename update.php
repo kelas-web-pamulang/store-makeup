@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Check if the session login or cookie login is set
+if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
+    header('Location: login.php');
+    exit();
+}
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,6 +17,37 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Update Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: url('https://i.pinimg.com/736x/0f/55/9d/0f559dc377c4aa7af5502696e9f98dbb.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200vh;
+            margin: 0;
+        }
+        .container {
+            background-color: pink;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            margin-bottom: 10px;
+        }
+        .btn-primary, .btn-info {
+            margin-top: 100px;
+        }
+        .alert {
+            margin-top: 100px;
+        }
+    </style>
 </head>
 <body>
     <?php
@@ -15,6 +56,7 @@
         $db = new ConfigDB();
         $conn = $db->connect();
 
+        // Get product ID from query string
         $id = isset($_GET['id']) ? intval($_GET['id']) : null;
         if (!$id) {
             echo "<div class='alert alert-danger mt-3' role='alert'>Invalid Product ID</div>";
@@ -22,6 +64,7 @@
         }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Retrieve form data
             $nama_produk = $_POST['nama_produk'];
             $merek = $_POST['merek'];
             $kategori = $_POST['kategori'];
@@ -33,6 +76,27 @@
             $rating = $_POST['rating'];
             $sertifikasi = $_POST['sertifikasi'];
 
+            // Check if tambah_stok is set and valid
+            $tambah_stok = isset($_POST['tambah_stok']) ? intval($_POST['tambah_stok']) : 0;
+            if ($tambah_stok < 0) {
+                $tambah_stok = 0;
+            }
+
+            // Check if kurangi_stok is set and valid
+            $kurangi_stok = isset($_POST['kurangi_stok']) ? intval($_POST['kurangi_stok']) : 0;
+            if ($kurangi_stok < 0) {
+                $kurangi_stok = 0;
+            }
+
+            // Update stok
+            $stok += $tambah_stok;
+            $stok -= $kurangi_stok;
+
+            if ($stok < 0) {
+                $stok = 0; // Ensure stock is not negative
+            }
+
+            // Update query
             $query = $db->update('produk', [
                 'Nama_Produk' => $nama_produk,
                 'Merek' => $merek,
@@ -46,6 +110,7 @@
                 'Sertifikasi' => $sertifikasi
             ], $id);
 
+            // Check query execution
             if ($query) {
                 echo "<div class='alert alert-success mt-3' role='alert'>Data updated successfully</div>";
             } else {
@@ -53,6 +118,7 @@
             }
         }
 
+        // Fetch product details
         $result = $db->select("produk", ['AND ID_Produk=' => $id]);
         if (empty($result)) {
             echo "<div class='alert alert-danger mt-3' role='alert'>Product not found. SQL: " . $db->getLastQuery() . "</div>";
@@ -60,6 +126,7 @@
         }
         $product = $result[0];
 
+        // Close database connection
         $db->close();
     ?>
     <div class="container">
@@ -83,7 +150,15 @@
             </div>
             <div class="form-group">
                 <label for="stokInput">Stok</label>
-                <input type="number" class="form-control" id="stokInput" name="stok" placeholder="Enter Stock" required value="<?php echo htmlspecialchars($product['Stok']); ?>">
+                <input type="number" class="form-control" id="stokInput" name="stok" placeholder="Enter Stock" readonly value="<?php echo htmlspecialchars($product['Stok']); ?>">
+            </div>
+            <div class="form-group">
+                <label for="tambahStokInput">Tambah Stok</label>
+                <input type="number" class="form-control" id="tambahStokInput" name="tambah_stok" placeholder="Enter Additional Stock" value="">
+            </div>
+            <div class="form-group">
+                <label for="kurangiStokInput">Kurangi Stok</label>
+                <input type="number" class="form-control" id="kurangiStokInput" name="kurangi_stok" placeholder="Enter Stock to Reduce" value="">
             </div>
             <div class="form-group">
                 <label for="tanggalKadaluarsaInput">Tanggal Kadaluarsa</label>
