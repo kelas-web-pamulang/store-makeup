@@ -50,9 +50,18 @@ if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
 </head>
 <body>
     <?php
-        ini_set('display_errors', '1');
+    date_default_timezone_set('Asia/Jakarta');
+        ini_set('display_errors', '0');
         ini_set('display_startup_errors', '1');
         error_reporting(E_ALL);
+        require 'vendor/autoload.php';
+        \Sentry\init([
+            'dsn' => 'https://848c81bfebd9037f8437713ec9c03931@o4507457086619648.ingest.us.sentry.io/4507457091862528',
+            // Specify a fixed sample rate
+            'traces_sample_rate' => 1.0,
+            // Set a sampling rate for profiling - this is relative to traces_sample_rate
+            'profiles_sample_rate' => 1.0,
+        ]);
 
         require_once 'config_db.php';
 

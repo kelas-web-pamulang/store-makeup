@@ -1,3 +1,21 @@
+<?php
+   session_start();
+
+   if (!isset($_SESSION['login'])) {
+       header('Location: login.php');
+       exit();
+   }
+
+    // Handle logout
+    if (isset($_GET['logout'])) {
+        session_destroy();
+        setcookie('clientId', '', time() - 3600, '/');
+        setcookie('clientSecret', '', time() - 3600, '/');
+        header('Location: login.php');
+        exit();
+    }
+    ?>
+    
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,19 +27,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         body {
-            background-color: #f8f9fa;
-            font-family: 'Georgia', serif;
-            color: #444;
+            background: url('https://www.fdli.org/wp-content/uploads/2020/05/The-Regulation-of-Cosmetics-scaled.jpeg') no-repeat center center fixed; 
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         .container {
             margin-top: 50px;
         }
         h1 {
-            color: #d63384;
-            font-family: 'Cursive', sans-serif;
-            font-size: 36px;
+            color: #6c757d;
+            font-family: 'Georgia', serif;
             margin-bottom: 30px;
-            text-align: center;
         }
         .form-control, .form-select {
             border-radius: 20px;
@@ -87,30 +107,23 @@
                 </tr>
                 </thead>
                 <tbody>
-
                 <?php
-                ini_set('display_errors', '1');
-                ini_set('display_startup_errors', '1');
-                error_reporting(E_ALL);
 
-                session_start();
+        require 'vendor/autoload.php';
+        \Sentry\init([
+        'dsn' => 'https://848c81bfebd9037f8437713ec9c03931@o4507457086619648.ingest.us.sentry.io/4507457091862528',
+        // Specify a fixed sample rate
+        'traces_sample_rate' => 1.0,
+        // Set a sampling rate for profiling - this is relative to traces_sample_rate
+        'profiles_sample_rate' => 1.0,
+        ]);
 
-if (!isset($_SESSION['login'])) {
-    header('Location: login.php');
-    exit();
-}
-
-// Handle logout
-if (isset($_GET['logout'])) {
-    session_destroy();
-    setcookie('clientId', '', time() - 3600, '/');
-    setcookie('clientSecret', '', time() - 3600, '/');
-    header('Location: login.php');
-    exit();
-}
+        date_default_timezone_set('Asia/Jakarta');
+        ini_set('display_errors', '0');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
 
                 require_once 'config_db.php';
-
                 $db = new ConfigDB();
                 $conn = $db->connect();
 
@@ -179,4 +192,5 @@ if (isset($_GET['logout'])) {
         </div>
     </div>
 </body>
+
 </html>
