@@ -19,7 +19,7 @@ if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background: url('https://i.pinimg.com/736x/0f/55/9d/0f559dc377c4aa7af5502696e9f98dbb.jpg') no-repeat center center fixed; 
+            background: url('https://www.fdli.org/wp-content/uploads/2020/05/The-Regulation-of-Cosmetics-scaled.jpeg') no-repeat center center fixed; 
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -27,30 +27,41 @@ if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
             height: 200vh;
             margin: 0;
         }
-        .container {
-            background-color: pink;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 700px;
-            width: 100%;
-        }
-        .form-group label {
-            font-weight: bold;
-        }
-        .form-group input, .form-group textarea {
-            margin-bottom: 10px;
-        }
-        .btn-primary, .btn-info {
+        .card {
             margin-top: 100px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .alert {
-            margin-top: 100px;
+        .card-header {
+            background-color: pink; 
+        }
+        .card-header h1 {
+            margin: 0;
+        }
+        .btn-primary {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .btn-primary:hover {
+            background-color: #1e7e34;
+            border-color: #1c7430;
         }
     </style>
 </head>
 <body>
     <?php
+    date_default_timezone_set('Asia/Jakarta');
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+    require 'vendor/autoload.php';
+    \Sentry\init([
+        'dsn' => 'https://848c81bfebd9037f8437713ec9c03931@o4507457086619648.ingest.us.sentry.io/4507457091862528',
+        // Specify a fixed sample rate
+        'traces_sample_rate' => 1.0,
+        // Set a sampling rate for profiling - this is relative to traces_sample_rate
+        'profiles_sample_rate' => 1.0,
+    ]);
+
         require_once 'config_db.php';
 
         $db = new ConfigDB();
@@ -130,59 +141,69 @@ if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
         $db->close();
     ?>
     <div class="container">
-        <h1 class="text-center mt-5">Ubah Data</h1>
-        <form action="" method="post">
-            <div class="form-group">
-                <label for="namaProdukInput">Nama Produk</label>
-                <input type="text" class="form-control" id="namaProdukInput" name="nama_produk" placeholder="Enter Product Name" required value="<?php echo htmlspecialchars($product['Nama_Produk']); ?>">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header text-white text-center">
+                        <h1>Ubah Data</h1>
+                    </div>
+                    <div class="card-body">
+                        <form action="" method="post">
+                            <div class="form-group">
+                                <label for="namaProdukInput">Nama Produk</label>
+                                <input type="text" class="form-control" id="namaProdukInput" name="nama_produk" placeholder="Enter Product Name" required value="<?php echo htmlspecialchars($product['Nama_Produk']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="merekInput">Merek</label>
+                                <input type="text" class="form-control" id="merekInput" name="merek" placeholder="Enter Brand" required value="<?php echo htmlspecialchars($product['Merek']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="kategoriInput">Kategori</label>
+                                <input type="text" class="form-control" id="kategoriInput" name="kategori" placeholder="Enter Category" required value="<?php echo htmlspecialchars($product['Kategori']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="hargaInput">Harga</label>
+                                <input type="number" class="form-control" id="hargaInput" name="harga" placeholder="Enter Price" required value="<?php echo htmlspecialchars($product['Harga']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="stokInput">Stok</label>
+                                <input type="number" class="form-control" id="stokInput" name="stok" placeholder="Enter Stock" readonly value="<?php echo htmlspecialchars($product['Stok']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="tambahStokInput">Tambah Stok</label>
+                                <input type="number" class="form-control" id="tambahStokInput" name="tambah_stok" placeholder="Enter Additional Stock" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="kurangiStokInput">Kurangi Stok</label>
+                                <input type="number" class="form-control" id="kurangiStokInput" name="kurangi_stok" placeholder="Enter Stock to Reduce" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="tanggalKadaluarsaInput">Tanggal Kadaluarsa</label>
+                                <input type="date" class="form-control" id="tanggalKadaluarsaInput" name="tanggal_kadaluarsa" value="<?php echo htmlspecialchars($product['Tanggal_Kadaluarsa']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="bahanInput">Bahan</label>
+                                <textarea class="form-control" id="bahanInput" name="bahan" placeholder="Enter Ingredients"><?php echo htmlspecialchars($product['Bahan']); ?></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="ukuranInput">Ukuran</label>
+                                <input type="text" class="form-control" id="ukuranInput" name="ukuran" placeholder="Enter Size" value="<?php echo htmlspecialchars($product['Ukuran']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="ratingInput">Rating</label>
+                                <input type="number" class="form-control" id="ratingInput" name="rating" step="0.1" min="0" max="5" placeholder="Enter Rating" value="<?php echo htmlspecialchars($product['Rating']); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="sertifikasiInput">Sertifikasi</label>
+                                <textarea class="form-control" id="sertifikasiInput" name="sertifikasi" placeholder="Enter Certifications"><?php echo htmlspecialchars($product['Sertifikasi']); ?></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                            <a href="index.php" class="btn btn-info btn-block mt-2">Kembali</a>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="merekInput">Merek</label>
-                <input type="text" class="form-control" id="merekInput" name="merek" placeholder="Enter Brand" required value="<?php echo htmlspecialchars($product['Merek']); ?>">
-            </div>
-            <div class="form-group">
-                <label for="kategoriInput">Kategori</label>
-                <input type="text" class="form-control" id="kategoriInput" name="kategori" placeholder="Enter Category" required value="<?php echo htmlspecialchars($product['Kategori']); ?>">
-            </div>
-            <div class="form-group">
-                <label for="hargaInput">Harga</label>
-                <input type="number" class="form-control" id="hargaInput" name="harga" placeholder="Enter Price" required value="<?php echo htmlspecialchars($product['Harga']); ?>">
-            </div>
-            <div class="form-group">
-                <label for="stokInput">Stok</label>
-                <input type="number" class="form-control" id="stokInput" name="stok" placeholder="Enter Stock" readonly value="<?php echo htmlspecialchars($product['Stok']); ?>">
-            </div>
-            <div class="form-group">
-                <label for="tambahStokInput">Tambah Stok</label>
-                <input type="number" class="form-control" id="tambahStokInput" name="tambah_stok" placeholder="Enter Additional Stock" value="">
-            </div>
-            <div class="form-group">
-                <label for="kurangiStokInput">Kurangi Stok</label>
-                <input type="number" class="form-control" id="kurangiStokInput" name="kurangi_stok" placeholder="Enter Stock to Reduce" value="">
-            </div>
-            <div class="form-group">
-                <label for="tanggalKadaluarsaInput">Tanggal Kadaluarsa</label>
-                <input type="date" class="form-control" id="tanggalKadaluarsaInput" name="tanggal_kadaluarsa" value="<?php echo htmlspecialchars($product['Tanggal_Kadaluarsa']); ?>">
-            </div>
-            <div class="form-group">
-                <label for="bahanInput">Bahan</label>
-                <textarea class="form-control" id="bahanInput" name="bahan" placeholder="Enter Ingredients"><?php echo htmlspecialchars($product['Bahan']); ?></textarea>
-            </div>
-            <div class="form-group">
-                <label for="ukuranInput">Ukuran</label>
-                <input type="text" class="form-control" id="ukuranInput" name="ukuran" placeholder="Enter Size" value="<?php echo htmlspecialchars($product['Ukuran']); ?>">
-            </div>
-            <div class="form-group">
-                <label for="ratingInput">Rating</label>
-                <input type="number" class="form-control" id="ratingInput" name="rating" step="0.1" min="0" max="5" placeholder="Enter Rating" value="<?php echo htmlspecialchars($product['Rating']); ?>">
-            </div>
-            <div class="form-group">
-                <label for="sertifikasiInput">Sertifikasi</label>
-                <textarea class="form-control" id="sertifikasiInput" name="sertifikasi" placeholder="Enter Certifications"><?php echo htmlspecialchars($product['Sertifikasi']); ?></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <a href="index.php" class="btn btn-info">Kembali</a>
-        </form>
+        </div>
     </div>
 </body>
 </html>
