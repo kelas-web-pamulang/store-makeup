@@ -1,9 +1,59 @@
 <?php
-session_start();
+ session_start();
 
-if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
-    header('Location: login.php');
-    exit();
+ if (!isset($_SESSION['login'])) {
+     header('Location: login.php');
+     exit();
+ }
+
+  // Handle logout
+  if (isset($_GET['logout'])) {
+      session_destroy();
+      setcookie('clientId', '', time() - 3600, '/');
+      setcookie('clientSecret', '', time() - 3600, '/');
+      header('Location: login.php');
+      exit();
+  }
+require_once 'config_db.php';
+require 'vendor/autoload.php';
+
+\Sentry\init([
+    'dsn' => 'https://848c81bfebd9037f8437713ec9c03931@o4507457086619648.ingest.us.sentry.io/4507457091862528',
+    'traces_sample_rate' => 1.0,
+    'profiles_sample_rate' => 1.0,
+]);
+
+$db = new ConfigDB();
+$conn = $db->connect();
+
+$message = "";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $nama_produk = $_POST['Nama_Produk'];
+    $merek = $_POST['Merek'];
+    $kategori = $_POST['Kategori'];
+    $harga = $_POST['Harga'];
+    $stok = $_POST['Stok'];
+    $tanggal_kadaluarsa = $_POST['Tanggal_Kadaluarsa'];
+    $bahan = $_POST['Bahan'];
+    $ukuran = $_POST['Ukuran'];
+    $rating = $_POST['Rating'];
+    $sertifikasi = $_POST['Sertifikasi'];
+    $created_at = date('Y-m-d H:i:s');
+
+    $query = "INSERT INTO Produk (Nama_Produk, Merek, Kategori, Harga, Stok, Tanggal_Kadaluarsa, Bahan, Ukuran, Rating, Sertifikasi, created_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('sssisssssss', $nama_produk, $merek, $kategori, $harga, $stok, $tanggal_kadaluarsa, $bahan, $ukuran, $rating, $sertifikasi, $created_at);
+
+    if ($stmt->execute()) {
+        $message = "<div class='alert alert-success mt-3' role='alert'>Data inserted successfully</div>";
+    } else {
+        $message = "<div class='alert alert-danger mt-3' role='alert'>Error: " . htmlspecialchars($stmt->error) . "</div>";
+    }
+
+    $stmt->close();
+    $conn->close();
 }
 ?>
 
@@ -11,14 +61,13 @@ if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Insert Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background: url('https://i.pinimg.com/736x/0f/55/9d/0f559dc377c4aa7af5502696e9f98dbb.jpg') no-repeat center center fixed; 
+            background: url('https://i.pinimg.com/736x/0f/55/9d/0f559dc377c4aa7af5502696e9f98dbb.jpg') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -41,33 +90,14 @@ if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
             margin-bottom: 10px;
         }
         .btn-primary, .btn-success {
-            margin-top: 100px;
+            margin-top: 20px;
         }
         .alert {
-            margin-top: 100px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <?php
-    date_default_timezone_set('Asia/Jakarta');
-        ini_set('display_errors', '0');
-        ini_set('display_startup_errors', '1');
-        error_reporting(E_ALL);
-        require 'vendor/autoload.php';
-        \Sentry\init([
-            'dsn' => 'https://848c81bfebd9037f8437713ec9c03931@o4507457086619648.ingest.us.sentry.io/4507457091862528',
-            // Specify a fixed sample rate
-            'traces_sample_rate' => 1.0,
-            // Set a sampling rate for profiling - this is relative to traces_sample_rate
-            'profiles_sample_rate' => 1.0,
-        ]);
-
-        require_once 'config_db.php';
-
-        $db = new ConfigDB();
-        $conn = $db->connect();
-    ?>
 <div class="container">
     <h1 class="text-center mt-5">Insert Data Produk</h1>
     <form action="" method="post" class="needs-validation" novalidate>
@@ -121,29 +151,9 @@ if (!isset($_SESSION['login']) && !isset($_COOKIE['login'])) {
     </form>
 
     <?php
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $nama_produk = $_POST['Nama_Produk'];
-            $merek = $_POST['Merek'];
-            $kategori = $_POST['Kategori'];
-            $harga = $_POST['Harga'];
-            $stok = $_POST['Stok'];
-            $tanggal_kadaluarsa = $_POST['Tanggal_Kadaluarsa'];
-            $bahan = $_POST['Bahan'];
-            $ukuran = $_POST['Ukuran'];
-            $rating = $_POST['Rating'];
-            $sertifikasi = $_POST['Sertifikasi'];
-            $created_at = date('Y-m-d H:i:s');
-
-            $query = "INSERT INTO Produk (Nama_Produk, Merek, Kategori, Harga, Stok, Tanggal_Kadaluarsa, Bahan, Ukuran, Rating, Sertifikasi, created_at)
-                      VALUES ('$nama_produk', '$merek', '$kategori', '$harga', '$stok', '$tanggal_kadaluarsa', '$bahan', '$ukuran', '$rating', '$sertifikasi', '$created_at')";
-
-            if ($conn->query($query) === TRUE) {
-                echo "<div class='alert alert-success mt-3' role='alert'>Data inserted successfully</div>";
-            } else {
-                echo "<div class='alert alert-danger mt-3' role='alert'>Error: " . $query . "<br>" . $conn->error . "</div>";
-            }
-        }
-        $conn->close();
+    if (isset($message)) {
+        echo $message;
+    }
     ?>
 </div>
 

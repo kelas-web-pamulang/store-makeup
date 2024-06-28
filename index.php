@@ -1,21 +1,21 @@
 <?php
-   session_start();
+session_start();
 
-   if (!isset($_SESSION['login'])) {
-       header('Location: login.php');
-       exit();
-   }
+if (!isset($_SESSION['login'])) {
+    header('Location: login.php');
+    exit();
+}
 
-    // Handle logout
-    if (isset($_GET['logout'])) {
-        session_destroy();
-        setcookie('clientId', '', time() - 3600, '/');
-        setcookie('clientSecret', '', time() - 3600, '/');
-        header('Location: login.php');
-        exit();
-    }
-    ?>
-    
+// Handle logout
+if (isset($_GET['logout'])) {
+    session_destroy();
+    setcookie('clientId', '', time() - 3600, '/');
+    setcookie('clientSecret', '', time() - 3600, '/');
+    header('Location: login.php');
+    exit();
+}
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -32,7 +32,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 120vh;
             margin: 0;
         }
         .container {
@@ -109,19 +109,17 @@
                 <tbody>
                 <?php
 
-        require 'vendor/autoload.php';
-        \Sentry\init([
-        'dsn' => 'https://848c81bfebd9037f8437713ec9c03931@o4507457086619648.ingest.us.sentry.io/4507457091862528',
-        // Specify a fixed sample rate
-        'traces_sample_rate' => 1.0,
-        // Set a sampling rate for profiling - this is relative to traces_sample_rate
-        'profiles_sample_rate' => 1.0,
-        ]);
+                require 'vendor/autoload.php';
+                \Sentry\init([
+                    'dsn' => 'https://848c81bfebd9037f8437713ec9c03931@o4507457086619648.ingest.us.sentry.io/4507457091862528',
+                    'traces_sample_rate' => 1.0,
+                    'profiles_sample_rate' => 1.0,
+                ]);
 
-        date_default_timezone_set('Asia/Jakarta');
-        ini_set('display_errors', '0');
-        ini_set('display_startup_errors', '1');
-        error_reporting(E_ALL);
+                date_default_timezone_set('Asia/Jakarta');
+                ini_set('display_errors', '0');
+                ini_set('display_startup_errors', '1');
+                error_reporting(E_ALL);
 
                 require_once 'config_db.php';
                 $db = new ConfigDB();
@@ -149,9 +147,10 @@
                 }
 
                 $query = "SELECT a.ID_Produk, a.Nama_Produk, a.Merek, a.Harga, a.Stok, a.Tanggal_Kadaluarsa, a.Bahan, a.Ukuran, a.Rating, a.Sertifikasi, a.created_at, b.Kategori AS category_name 
-                          FROM produk a 
+                          FROM produk a
                           LEFT JOIN categories b ON a.Kategori = b.ID_Kategori 
-                          $search_query";
+                          $search_query
+                          ORDER BY a.created_at DESC";  // Added ORDER BY clause
                 $result = $conn->query($query);
 
                 if ($result) {
@@ -174,7 +173,7 @@
                             echo "<td>" .($row['Sertifikasi']) . "</td>";
                             echo "<td>" .($row['created_at']) . "</td>";
                             echo "<td><a class='btn btn-sm btn-info' href='update.php?id=" .($row['ID_Produk']) . "'>Update</a></td>";
-                            echo "<td><a class='btn btn-sm btn-danger' href='index.php?delete=" .($row['ID_Produk']) . "'>Delete</a></td>";
+                            echo "<td><a class='btn btn-sm btn-danger' href='#' onclick='confirmDelete(" .($row['ID_Produk']) . ")'>Delete</a></td>";
                             echo "</tr>";
                             $key++;  // Increment the $key variable
                         }
@@ -191,6 +190,14 @@
             </table>
         </div>
     </div>
+
+    <script>
+        function confirmDelete(id) {
+            if (confirm('Apakah kamu yakin ingin menghapus data?')) {
+                window.location.href = 'index.php?delete=' + id;
+            }
+        }
+    </script>
 </body>
 
 </html>
